@@ -27,8 +27,9 @@ void q_free(struct list_head *head)
     while (c != head) {
         struct list_head *next = c->next;  // used to store the next node of c
         element_t *n = container_of(c, element_t, list);
-        free(n);
-        free(n->value);
+        q_release_element(n);
+        // free(n);
+        // free(n->value);
         c = next;
     }
     free(head);
@@ -114,8 +115,9 @@ bool q_delete_mid(struct list_head *head)
     }
     list_del(slow);
     element_t *del_node = list_entry(slow, element_t, list);
-    free(del_node);
-    free(del_node->value);
+    // free(del_node);
+    // free(del_node->value);
+    q_release_element(del_node);
     return true;
 }
 
@@ -173,16 +175,42 @@ void q_sort(struct list_head *head, bool descend) {}
  * the right side of it */
 int q_ascend(struct list_head *head)
 {
-    // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return 0;
+    if (!head || list_empty(head))
+        return 0;
+
+    struct list_head *cur = head->prev;
+    while (cur->prev != head) {
+        if (strcmp(list_entry(cur, element_t, list)->value,
+                   list_entry(cur->prev, element_t, list)->value) < 0) {
+            struct list_head *tmp = cur->prev;
+            list_del(tmp);
+            q_release_element(list_entry(tmp, element_t, list));
+        } else {
+            cur = cur->prev;
+        }
+    }
+    return q_size(head);
 }
 
 /* Remove every node which has a node with a strictly greater value anywhere to
  * the right side of it */
 int q_descend(struct list_head *head)
 {
-    // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return 0;
+    if (!head || list_empty(head))
+        return 0;
+
+    struct list_head *cur = head->prev;
+    while (cur->prev != head) {
+        if (strcmp(list_entry(cur, element_t, list)->value,
+                   list_entry(cur->prev, element_t, list)->value) > 0) {
+            struct list_head *tmp = cur->prev;
+            list_del(tmp);
+            q_release_element(list_entry(tmp, element_t, list));
+        } else {
+            cur = cur->prev;
+        }
+    }
+    return q_size(head);
 }
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
