@@ -355,7 +355,7 @@ static bool do_option(int argc, char *argv[])
 static bool do_source(int argc, char *argv[])
 {
     if (argc < 2) {
-        report(1, "No source file given");
+        report(1, "No source file given. Use 'source <file>'.");
         return false;
     }
 
@@ -370,7 +370,7 @@ static bool do_source(int argc, char *argv[])
 static bool do_log(int argc, char *argv[])
 {
     if (argc < 2) {
-        report(1, "No log file given");
+        report(1, "No log file given. Use 'log <file>'.");
         return false;
     }
 
@@ -378,6 +378,7 @@ static bool do_log(int argc, char *argv[])
     if (!result)
         report(1, "Couldn't open log file '%s'", argv[1]);
 
+    printf("Logging enabled: %s\n", argv[1]);
     return result;
 }
 
@@ -587,7 +588,7 @@ static int cmd_select(int nfds,
         FD_ZERO(readfds);
         FD_SET(infd, readfds);
 
-        /* If web not ready listen */
+        /* If web_fd is available, add to readfds */
         if (web_fd != -1)
             FD_SET(web_fd, readfds);
 
